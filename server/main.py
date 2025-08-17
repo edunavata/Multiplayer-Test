@@ -28,7 +28,7 @@ import os
 import random
 import string
 import time
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass, field, asdict
 from typing import Dict, Set, Tuple, Optional, List
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
@@ -79,7 +79,7 @@ class Player:
     speed: float = DEFAULT_PLAYER_SPEED
     label: str = "P"
     color: str = "#2563eb"
-    input: InputState = InputState()
+    input: InputState = field(default_factory=InputState)
 
     def integrate(self, dt: float) -> None:
         """Integrate movement using current input.
