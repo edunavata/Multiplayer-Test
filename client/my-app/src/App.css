@@ -1,8 +1,52 @@
 #root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+  margin: 0px;
+  padding: 0px;
 }
 
 
+.controls {
+  margin-top: 16px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  user-select: none;         /* evita copiar texto */
+  touch-action: manipulation; /* mejora UX en móviles */
+  max-width: 260px;
+}
+
+.control-btn {
+  background-color: #d1d5db;  /* gris claro */
+  border-radius: 50%;
+  width: 80px;   /* tamaño grande en móvil */
+  height: 80px;
+  font-size: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+  transition: transform 0.1s ease, background-color 0.1s ease;
+  cursor: pointer;
+  line-height: 1;             /* evita saltos */
+}
+
+.control-btn:active {
+  background-color: #9ca3af; /* gris más oscuro al presionar */
+  transform: scale(0.95);    /* feedback táctil */
+}
+.app-container {
+
+  display: flex;             /* flex */
+  flex-direction: column;    /* flex-col */
+  align-items: center;       /* items-center */
+  justify-content: center;   /* justify-center */
+
+}
+
+/* Para tablet (≥768px) y desktop */
+@media (min-width: 768px) {
+  .app-container {
+    width: 100vw;
+    height: 100vh;
+  }
+}

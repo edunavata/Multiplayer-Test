@@ -19,7 +19,7 @@ export default function Modular2DMap() {
     const canvas = canvasRef.current;
     if (canvas) ctxRef.current = canvas.getContext("2d");
 
-    const socket = new WebSocket("ws://localhost:8000/ws");
+    const socket = new WebSocket("ws://192.168.1.35:8000/ws");
     socket.onopen = () => console.log("Connected to server");
 
     socket.onmessage = (event) => {
@@ -76,13 +76,76 @@ export default function Modular2DMap() {
     return () => cancelAnimationFrame(rafId);
   }, [world]);
 
+  // --- Helper: simula teclas para controles táctiles ---
+  const pressVirtual = (key: "ArrowUp" | "ArrowDown" | "ArrowLeft" | "ArrowRight", down: boolean) => {
+    // Usamos Pointer Events para móvil/desktop y evitamos scroll por defecto
+    const type = down ? "keydown" : "keyup";
+    const evt = new KeyboardEvent(type, { key }); // InputManager hace toLowerCase internamente
+    window.dispatchEvent(evt);
+  };
+
+
   return (
-    <div className="w-screen h-screen flex items-center justify-center bg-gray-100">
+    <div className="app-container">
+
+
       <canvas ref={canvasRef} width={VIEW_W} height={VIEW_H} />
       {/* Opcional: debug overlay
       <pre className="absolute bottom-2 left-2 bg-white/70 p-2 text-xs">
         {JSON.stringify(world.all(), null, 2)}
       </pre> */}
+
+      {/* Controles táctiles */}
+      <div className="controls">
+        <div />
+        <button
+          aria-label="Up"
+          className="control-btn"
+          onPointerDown={(e) => { e.preventDefault(); pressVirtual("ArrowUp", true); }}
+          onPointerUp={(e) => { e.preventDefault(); pressVirtual("ArrowUp", false); }}
+          onPointerLeave={() => pressVirtual("ArrowUp", false)}
+          onContextMenu={(e) => e.preventDefault()}
+        >
+          ↑
+        </button>
+        <div />
+
+        <button
+          aria-label="Left"
+          className="control-btn"
+          onPointerDown={(e) => { e.preventDefault(); pressVirtual("ArrowLeft", true); }}
+          onPointerUp={(e) => { e.preventDefault(); pressVirtual("ArrowLeft", false); }}
+          onPointerLeave={() => pressVirtual("ArrowLeft", false)}
+          onContextMenu={(e) => e.preventDefault()}
+        >
+          ←
+        </button>
+
+        <button
+          aria-label="Down"
+          className="control-btn"
+          onPointerDown={(e) => { e.preventDefault(); pressVirtual("ArrowDown", true); }}
+          onPointerUp={(e) => { e.preventDefault(); pressVirtual("ArrowDown", false); }}
+          onPointerLeave={() => pressVirtual("ArrowDown", false)}
+          onContextMenu={(e) => e.preventDefault()}
+        >
+          ↓
+        </button>
+
+        <button
+          aria-label="Right"
+          className="control-btn"
+          onPointerDown={(e) => { e.preventDefault(); pressVirtual("ArrowRight", true); }}
+          onPointerUp={(e) => { e.preventDefault(); pressVirtual("ArrowRight", false); }}
+          onPointerLeave={() => pressVirtual("ArrowRight", false)}
+          onContextMenu={(e) => e.preventDefault()}
+        >
+          →
+        </button>
+      </div>
+
+
+
     </div>
   );
 }
