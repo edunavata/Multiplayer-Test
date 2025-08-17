@@ -21,6 +21,7 @@ Server -> Client:
   { "type": "join", "id": str }
   { "type": "leave", "id": str }
 """
+
 import asyncio
 import json
 import math
@@ -47,32 +48,39 @@ DEFAULT_PLAYER_SPEED: float = 220.0  # px/s
 TICK_RATE: int = 20
 TICK_MS: float = 1000.0 / TICK_RATE
 
+
 # ---- Helpers ----
 def _clamp(v: float, vmin: float, vmax: float) -> float:
     """Clamp a numeric value."""
     return max(vmin, min(vmax, v))
+
 
 def _rand_id(n: int = 6) -> str:
     """Generate a short id."""
     alphabet = string.ascii_letters + string.digits
     return "".join(random.choice(alphabet) for _ in range(n))
 
+
 def _rand_color() -> str:
     """Pick a pleasant color."""
     palette = ["#2563eb", "#059669", "#7c3aed", "#dc2626", "#f59e0b", "#0ea5e9"]
     return random.choice(palette)
 
+
 @dataclass
 class InputState:
     """Simple input state for a player."""
+
     up: bool = False
     down: bool = False
     left: bool = False
     right: bool = False
 
+
 @dataclass
 class Player:
     """Server-side player representation."""
+
     id: str
     x: float
     y: float
@@ -120,6 +128,7 @@ class Player:
             "label": self.label,
             "color": self.color,
         }
+
 
 class Hub:
     """Connection hub that stores players and sockets.
@@ -183,7 +192,10 @@ class Hub:
         }
         msg = json.dumps(snapshot)
         # Send concurrently; drop dead sockets silently
-        await asyncio.gather(*(self._safe_send(ws, msg) for ws in self.sockets.values()), return_exceptions=True)
+        await asyncio.gather(
+            *(self._safe_send(ws, msg) for ws in self.sockets.values()),
+            return_exceptions=True,
+        )
 
     async def _safe_send(self, ws: WebSocket, msg: str) -> None:
         try:
@@ -231,10 +243,16 @@ class Hub:
             self.sockets.pop(pid, None)
         await self._broadcast_event({"type": "leave", "id": pid})
 
-    async def _broadcast_event(self, event: Dict, exclude: Set[str] | None = None) -> None:
+    async def _broadcast_event(
+        self, event: Dict, exclude: Set[str] | None = None
+    ) -> None:
         msg = json.dumps(event)
-        targets = [ws for p, ws in self.sockets.items() if not exclude or p not in exclude]
-        await asyncio.gather(*(self._safe_send(ws, msg) for ws in targets), return_exceptions=True)
+        targets = [
+            ws for p, ws in self.sockets.items() if not exclude or p not in exclude
+        ]
+        await asyncio.gather(
+            *(self._safe_send(ws, msg) for ws in targets), return_exceptions=True
+        )
 
     async def handle_message(self, pid: str, data: Dict) -> None:
         """Handle a single client message (only 'input')."""
@@ -253,23 +271,28 @@ class Hub:
             p.input.left = bool(data.get("left"))
             p.input.right = bool(data.get("right"))
 
+
 # ---- FastAPI app and routes ----
 app = FastAPI()
 hub = Hub()
 
+
 @app.on_event("startup")
 async def _on_startup() -> None:
     await hub.start()
+
 
 @app.on_event("shutdown")
 async def _on_shutdown() -> None:
     # No need to await stop in FastAPI shutdown; kept for completeness
     pass
 
+
 @app.get("/")
 async def root() -> HTMLResponse:
     # Tiny page for manual test if you open ws from console
     return HTMLResponse("<h1>WS server up</h1>")
+
 
 @app.websocket("/ws")
 async def ws_endpoint(ws: WebSocket) -> None:
